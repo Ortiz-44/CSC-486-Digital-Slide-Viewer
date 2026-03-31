@@ -7,22 +7,38 @@ def Gio(x):
     return v
 print(Gio(1))
 
+import random 
+
 class TiltSensor:
     """
     Function: Detect and execute right or left tilt action.
     variables: RS - LS 
     """
     def read_direction(self):
-        pass
-
-    pass
+        sn = input("left or right")
+        if sn == "left":
+            print("sensor rotated left")
+            return sn
+        elif sn == "right":
+            print("sensor rotated right")
+            return sn
+        else: 
+            self.read_direction()
 
 class RGBReader:
+    
     """
     Function: detect color from the slides inserted.
     """
     def read_color_code(self):
-        pass
+        self.Colors = ["red", "green", "yellow", "blue"]
+        rd = self.Colors.choice()
+        if rd == self.Colors:
+            print("The color inserted is" + rd)
+            return rd
+        else:
+            print("Color unidentified!")
+            self.read_color_code()
 
     pass
 
@@ -57,6 +73,7 @@ class DigitalSlideViewerController:
         self.rgb_reader = rgb_reader
         self.image_manager = image_manager
         self.display = display
+        # self.gyroscope = gyroscope
 
     def run(self):
         """Main loop"""
