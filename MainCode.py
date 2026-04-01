@@ -40,7 +40,6 @@ class RGBReader:
             print("Color unidentified!")
             self.read_color_code()
 
-    pass
 
 class ImageCollectionManager:
     """
