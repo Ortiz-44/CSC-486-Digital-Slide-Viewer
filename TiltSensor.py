@@ -2,34 +2,50 @@
 
 # Maybe aqui tiene que ir el codigo para los inputs de los sensores
 # Averiguar que es ese codigo!!!
-
-
-class TiltSensor:
-    """
-    Function: Detect and execute right or left tilt action.
-    variables: RS - LS 
-    """
-    Sensor = ""
+from gpiozero import Button
+import time
 
 class TiltSensor:
-    """
-    Function: Detect and execute right or left tilt action.
-    """
+    def __init__(self, pin):
+        self.sensor = Button(pin, pull_up=True)
 
     def read_direction(self):
         while True:
-            sn = input("left or right? ").lower()
+            if not self.sensor.is_pressed:
+                print("Tilt detected")
 
-            if sn == "left":
-                print("sensor rotated left")
-                return "left"
+                while not self.sensor.is_pressed:
+                    time.sleep(0.5)
 
-            elif sn == "right":
-                print("sensor rotated right")
                 return "right"
+            time.sleep(0.5)
 
-            else:
-                print("Try again!")
+# class TiltSensor:
+#     """
+#     Function: Detect and execute right or left tilt action.
+#     """
 
-reader = TiltSensor()
-reader.read_direction()
+#     def read_direction(self):
+#         while True:
+#             sn = input("left or right? ").lower()
+
+#             if sn == "left":
+#                 print("sensor rotated left")
+#                 return "left"
+
+#             elif sn == "right":
+#                 print("sensor rotated right")
+#                 return "right"
+
+#             else:
+#                 print("Try again!")
+
+if __name__ == "__main__":
+    tilt = TiltSensor(17)
+
+    while True:
+        direction = tilt.read_direction()
+        print("Direction:", direction)
+
+    # This will go later in the main loop
+
