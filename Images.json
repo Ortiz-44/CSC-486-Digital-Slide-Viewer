@@ -1,15 +1,15 @@
 {
     "red": [
-        "Pictures/red/IMG_2213.jpeg",
-        "Pictures/red/IMG_2216.jpeg",
-        "Pictures/red/IMG_2294.jpeg",
-        "Pictures/red/IMG_2300.jpeg"
+        "/home/gd2026/Pictures/red/IMG_2213.jpeg",
+        "/home/gd2026/Pictures/red/IMG_2216.jpeg",
+        "/home/gd2026/Pictures/red/IMG_2294.jpeg",
+        "/home/gd2026/Pictures/red/IMG_2300.jpeg"
     ],
     "blue": [
-        "Pictures/blue/IMG_1067.jpeg",
-        "Pictures/blue/IMG_7761.jpeg",
-        "Pictures/blue/IMG_7767.jpeg",
-        "Pictures/blue/IMG_7780.jpeg",
-        "Pictures/blue/IMG_7797.jpeg"
+        "/home/gd2026/Pictures/blue/IMG_1067.jpeg",
+        "/home/gd2026/Pictures/blue/IMG_7761.jpeg",
+        "/home/gd2026/Pictures/blue/IMG_7767.jpeg",
+        "/home/gd2026/Pictures/blue/IMG_7780.jpeg",
+        "/home/gd2026/Pictures/blue/IMG_7797.jpeg"
     ]
 }
