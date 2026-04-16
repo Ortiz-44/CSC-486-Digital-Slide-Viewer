@@ -1,10 +1,12 @@
 import time
+import os
 import board
 import busio
 import displayio
 import fourwire
 import adafruit_displayio_ssd1306
 import RPi.GPIO as GPIO
+from PIL import Image, ImageEnhance
 
 # --- Tilt Sensor Setup ---
 SWITCH_A = 17
@@ -20,58 +22,50 @@ spi = busio.SPI(board.SCK, MOSI=board.MOSI)
 bus = fourwire.FourWire(spi, command=board.D24, chip_select=board.CE0, reset=board.D25, baudrate=1000000)
 screen = adafruit_displayio_ssd1306.SSD1306(bus, width=128, height=64)
 
-# --- Color Collections ---
-# OLED is monochrome so we simulate "colors" with fill patterns and labels
-COLORS = ["RED", "GREEN", "BLUE"]
+# --- Image Collection ---
+IMAGES = [
+    "/home/gd2026/Pictures/BW/IMG-44.jpg",
+    "/home/gd2026/Pictures/BW/IMG-441.png",
+    "/home/gd2026/Pictures/BW/IMG1.jpg",
+    "/home/gd2026/Pictures/BW/img22.png",
+]
+
 current_index = 0
 
-def show_color(index):
-    """Fill the screen and show the color name as text."""
-    color_name = COLORS[index]
-    print(f"Displaying: {color_name}")
+def load_image(path):
+    """Load, convert and display an image with dithering on the OLED."""
+    print(f"Loading: {os.path.basename(path)}")
+    img = Image.open(path)
+    img = img.convert("L")                        # grayscale
+    img = ImageEnhance.Contrast(img).enhance(1.4) # boost contrast
+    img = img.resize((128, 64), Image.LANCZOS)    # fit screen
+    img = img.convert("1")                        # 1-bit with dithering
 
-    # Alternate fill pattern per color to visually distinguish them
-    # RED   = full white screen
-    # GREEN = checkerboard pattern
-    # BLUE  = horizontal stripes
     bitmap = displayio.Bitmap(128, 64, 2)
     palette = displayio.Palette(2)
     palette[0] = 0x000000  # black
     palette[1] = 0xFFFFFF  # white
 
-    if color_name == "RED":
-        # Full white
-        for y in range(64):
-            for x in range(128):
-                bitmap[x, y] = 1
-
-    elif color_name == "GREEN":
-        # Checkerboard
-        for y in range(64):
-            for x in range(128):
-                bitmap[x, y] = 1 if (x + y) % 2 == 0 else 0
-
-    elif color_name == "BLUE":
-        # Horizontal stripes
-        for y in range(64):
-            for x in range(128):
-                bitmap[x, y] = 1 if y % 4 < 2 else 0
+    for y in range(64):
+        for x in range(128):
+            bitmap[x, y] = 1 if img.getpixel((x, y)) else 0
 
     tile = displayio.TileGrid(bitmap, pixel_shader=palette)
     group = displayio.Group()
     group.append(tile)
     screen.root_group = group
+    print(f"Showing image {current_index + 1} of {len(IMAGES)}: {os.path.basename(path)}")
 
 def wait_for_release():
-    """Wait until both tilt switches are open (back to neutral)."""
+    """Wait until tilt sensor returns to neutral."""
     while GPIO.input(SWITCH_A) == GPIO.LOW or GPIO.input(SWITCH_B) == GPIO.LOW:
-        time.sleep(0.5)
+        time.sleep(0.05)
 
 # --- Main ---
-print("Demo starting! Tilt the sensor to cycle colors.")
+print("Demo starting! Tilt to cycle through images.")
 print("Press Ctrl+C to stop.\n")
 
-show_color(current_index)
+load_image(IMAGES[current_index])
 
 try:
     while True:
@@ -79,13 +73,12 @@ try:
         b = GPIO.input(SWITCH_B)
 
         if a == GPIO.LOW or b == GPIO.LOW:
-            # Any tilt detected — advance to next color
-            current_index = (current_index + 1) % len(COLORS)
-            show_color(current_index)
-            wait_for_release()   # debounce: wait until tilt returns to neutral
-            time.sleep(0.2)      # small extra buffer
+            current_index = (current_index + 1) % len(IMAGES)
+            load_image(IMAGES[current_index])
+            wait_for_release()
+            time.sleep(0.2)
 
-        time.sleep(0.5)
+        time.sleep(0.05)
 
 except KeyboardInterrupt:
     print("\nStopped.")
