@@ -1,38 +1,56 @@
+import time
+from rgbReader import get_dominant_color
+from tilt import get_tilt, cleanup
+from ICM import ImageCollectionManager
 
+# ── Constants ─────────────────────────────────────────────────────────────────
+HELLO_IMAGE = "/home/gd2026/Pictures/BW/hello-1.png"
 
-class ImageCollectionManager:
-    """
-    Function: Load the correct collection --> Execute next image or previous one depending tilt.
-    """
-    def load_collection(self):
-        pass
-    def next_image(self):
-        pass
-    def previous_image(self):
-        pass
+# ── Main ──────────────────────────────────────────────────────────────────────
+def main():
+    print("Digital Slide Viewer starting...")
 
-    pass
+    manager = ImageCollectionManager()
 
-class LCDDisplay:
-    """
-    Fucntion: Display loaded collection to the display.
-    """
-    def display_image(self):
-        pass
+    # Show hello screen on startup
+    manager.display_image_file(HELLO_IMAGE)
+    print("Waiting for color input...\n")
 
-    pass
+    current_color = None  # no collection loaded yet
 
-class DigitalSlideViewerController:
-    """
-    Main Class where everything is going to run
-    """
-    def __init__(self, tilt_sensor, rgb_reader, image_manager, display):
-        self.tilt_sensor = tilt_sensor
-        self.rgb_reader = rgb_reader
-        self.image_manager = image_manager
-        self.display = display
-        # self.gyroscope = gyroscope
+    try:
+        while True:
 
-    def run(self):
-        """Main loop"""
-        pass
+            # 1. Read dominant color from RGB sensor
+            detected = get_dominant_color()
+
+            # 2. If no color detected, show hello and reset
+            if detected is None:
+                if current_color is not None:
+                    print("No color detected. Returning to hello screen.")
+                    manager.display_image_file(HELLO_IMAGE)
+                    current_color = None
+
+            # 3. New color detected → switch collection
+            elif detected != current_color:
+                print(f"Color changed: {current_color} → {detected}")
+                current_color = detected
+                manager.load_collection(current_color)
+
+            # 4. Check tilt → navigate images
+            action = get_tilt()
+            if action == "next":
+                manager.next_image()
+            elif action == "prev":
+                manager.prev_image()
+
+            time.sleep(0.5)  # adjust as needed for responsiveness
+
+    except KeyboardInterrupt:
+        print("\nStopped by user.")
+    finally:
+        cleanup()
+        print("GPIO cleaned up. Goodbye!")
+
+if __name__ == "__main__":
+    main()
